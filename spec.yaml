@@ -2,8 +2,6 @@ openapi: "3.0.0"
 info:
   title: Zero Type Demo
   version: v1
-servers:
-  - url: http://config/
 
 paths:
   /omit/empty:
@@ -31,9 +29,9 @@ components:
     ZeroTypes:
       type: object
       properties:
-        EmptyString:
+        emptyString:
           type: string
-        FalseBool:
+        falseBool:
           type: boolean
-        ZeroInt:
+        zeroInt:
           type: integer
