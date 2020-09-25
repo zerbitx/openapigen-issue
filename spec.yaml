@@ -1,0 +1,39 @@
+openapi: "3.0.0"
+info:
+  title: Zero Type Demo
+  version: v1
+servers:
+  - url: http://config/
+
+paths:
+  /omit/empty:
+    post:
+      summary: Show go zero value problem
+      operationId: omitEmpty
+      tags:
+      - go
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZeroTypes'
+      responses:
+        200:
+          description: Should respond with what you send
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZeroTypes'
+
+components:
+  schemas:
+    ZeroTypes:
+      type: object
+      properties:
+        EmptyString:
+          type: string
+        FalseBool:
+          type: boolean
+        ZeroInt:
+          type: integer
