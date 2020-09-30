@@ -7,18 +7,17 @@ import (
 	"io/ioutil"
 	"github.com/zerbitx/openapigen-issue/openapi"
 	"net/http"
+	"sync"
 )
 
 func main() {
 	mux := http.NewServeMux()
-	done := make(chan struct{})
-	callCount := 0
 
-	// just echo back the body that was sent
+	// just print out the body that was sent
+	var wg sync.WaitGroup
+	wg.Add(2)
 	mux.HandleFunc("/", func(rw http.ResponseWriter, req *http.Request) {
-		if callCount++; callCount == 2 {
-			defer close(done)
-		}
+	  defer wg.Done()
 
 		body, err := ioutil.ReadAll(req.Body)
 		
@@ -36,7 +35,9 @@ func main() {
 	openapi.NewAPIClient(&openapi.Configuration{
 		Host:   addr,
 		Scheme: "http",
-	}).GoApi.OmitEmpty(context.Background(), openapi.ZeroTypes{
+	}).GoApi.
+		// Explicitly set values, are serialized away here
+		OmitEmpty(context.Background(), openapi.ZeroTypes{
 		EmptyString: "",
 		FalseBool:   false,
 		ZeroInt:     0,
@@ -44,11 +45,12 @@ func main() {
 
 	var buf bytes.Buffer
 	buf.Write([]byte(`{"emptyString": "", "falseBool": false, zeroInt: 0}`))
+	// But it doesn't have to be that way....
 	req, _ := http.NewRequest(http.MethodPost,
 		"http://"+addr+"/omit/empty",
 		&buf)
 
 	(&http.Client{}).Do(req)
 
-	<-done
+	wg.Wait()
 }
